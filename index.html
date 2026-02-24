@@ -3,209 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misión 18: El Escape</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Raleway:wght@300;400&display=swap" rel="stylesheet">
+    <title>Misión 18: El Gran Escape</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold: #d4af37;
-            --dark: #1a1a1a;
-            --glass: rgba(255, 255, 255, 0.1);
+            --gold-bright: #f1c40f;
+            --dark: #050505;
+            --error: #e74c3c;
+            --success: #2ecc71;
+            --glass: rgba(255, 255, 255, 0.07);
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            padding: 0;
-            background-color: var(--dark);
-            background-image: radial-gradient(circle, #2c3e50 0%, #000000 100%);
+            background: var(--dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, #1a1a1a 0%, #050505 100%),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
             color: white;
             font-family: 'Raleway', sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px;
         }
 
-        /* Contenedor Principal */
-        #game-container {
-            position: relative;
-            width: 90%;
-            max-width: 500px;
-            height: 80vh;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 20px;
+        /* --- HEADER --- */
+        .header {
             text-align: center;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            z-index: 10;
         }
 
         h1 {
             font-family: 'Cinzel', serif;
             color: var(--gold);
-            letter-spacing: 3px;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
 
-        /* El plano visual */
-        .map-preview {
+        .subtitle {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+        }
+
+        /* --- CONTENEDOR DEL MAPA --- */
+        .game-wrapper {
+            position: relative;
+            display: flex;
+            gap: 30px;
+            max-width: 1200px;
             width: 100%;
-            height: 200px;
-            background: url('https://i.imgur.com/uR6vY7Y.png') center/contain no-repeat;
-            margin-bottom: 20px;
-            filter: sepia(0.5) brightness(0.8);
-            border: 1px solid var(--gold);
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        /* Tarjeta de acertijo */
-        .clue-card {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
+        .map-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            background: url('https://i.ibb.co/LdYm0P7/imatge.png') center/contain no-repeat;
+            border: 3px solid #222;
             border-radius: 15px;
-            border-left: 4px solid var(--gold);
-            margin-top: 10px;
-            transition: all 0.5s ease;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(212, 175, 55, 0.1);
         }
 
-        .location-badge {
-            display: inline-block;
-            background: var(--gold);
-            color: black;
-            padding: 2px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--gold);
-            color: white;
-            padding: 10px;
-            width: 80%;
-            margin: 20px 0;
-            text-align: center;
-            font-size: 1.1rem;
-            outline: none;
-        }
-
-        button {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 10px 30px;
-            border-radius: 30px;
+        /* --- ZONAS INTERACTIVAS --- */
+        .room {
+            position: absolute;
             cursor: pointer;
-            font-family: 'Cinzel', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0);
+            overflow: hidden;
+        }
+
+        .room::after {
+            content: '🔒';
+            font-size: 1.2rem;
+            opacity: 0.5;
             transition: 0.3s;
         }
 
-        button:hover {
+        .room:hover {
+            transform: scale(1.08);
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+            box-shadow: 0 0 15px var(--gold);
+            z-index: 5;
+        }
+
+        .room.unlocked::after { content: '🔓'; opacity: 1; }
+        .room.completed { border-color: var(--success); background: rgba(46, 204, 113, 0.2); }
+        .room.completed::after { content: '✅'; }
+
+        /* Coordenadas exactas del plano */
+        #r-entrada { top: 82%; left: 43%; width: 19%; height: 8%; }
+        #r-noa { top: 68%; left: 43%; width: 19%; height: 12%; }
+        #r-cocina { top: 53%; left: 43%; width: 28%; height: 12%; }
+        #r-lavabo { top: 73%; left: 13%; width: 19%; height: 12%; }
+        #r-trastero { top: 56%; left: 13%; width: 19%; height: 10%; }
+        #r-comedor { top: 16%; left: 18%; width: 38%; height: 35%; }
+        #r-habitacion { top: 36%; left: 56%; width: 30%; height: 15%; }
+        #r-papas { top: 11%; left: 56%; width: 30%; height: 22%; }
+
+        /* --- SIDEBAR DE ESTADO --- */
+        .status-panel {
+            width: 300px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .progress-box { margin-bottom: 20px; }
+        .progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        #fill { height: 100%; width: 0%; background: var(--gold); transition: 1s; }
+
+        /* --- MODAL DE ACERTIJO --- */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 450px;
+            background: #111;
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 40px;
+            z-index: 101;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        .modal h2 { font-family: 'Cinzel'; color: var(--gold); margin-top: 0; }
+        .clue-box { background: #1a1a1a; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid var(--gold); text-align: left; line-height: 1.6; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #333;
+            border-bottom: 2px solid var(--gold);
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        .btn-main {
             background: var(--gold);
             color: black;
-            box-shadow: 0 0 15px var(--gold);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 5px;
-            background: #333;
-            margin-top: 30px;
+            border: none;
+            padding: 12px 30px;
+            font-weight: bold;
+            text-transform: uppercase;
             border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        #progress-fill {
-            height: 100%;
-            background: var(--gold);
-            width: 20%;
-            transition: 0.5s;
-        }
+        .btn-main:hover { background: var(--gold-bright); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4); }
+
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <h1>MISIÓN: 18 AÑOS</h1>
-        
-        <div class="map-preview"></div>
+    <div class="header">
+        <p class="subtitle">Protocolo Cumpleaños 18 Activado</p>
+        <h1>EL TESORO OCULTO</h1>
+    </div>
 
-        <div id="setup">
-            <div class="location-badge" id="loc-name">📍 ENTRADA</div>
-            <div class="clue-card">
-                <p id="clue-text">"Bienvenida, agente especial. Tu aventura comienza donde termina la calle. Busca el código bajo el objeto que pisa todo el mundo."</p>
+    <div class="game-wrapper">
+        <div class="status-panel">
+            <h3>Progreso de Misión</h3>
+            <div class="progress-box">
+                <p id="status-text">Objetivo: Desbloquear Entrada</p>
+                <div class="progress-bar"><div id="fill"></div></div>
             </div>
-
-            <input type="text" id="pass-input" placeholder="Escribe el código secreto...">
-            <br>
-            <button onclick="checkPass()">DESCIFRAR</button>
+            <div id="log" style="font-size: 0.8rem; color: #666; height: 150px; overflow-y: auto; border-top: 1px solid #222; padding-top: 10px;">
+                > Iniciando sistema...<br>
+                > Esperando primer movimiento...
+            </div>
         </div>
 
-        <div class="progress-bar">
-            <div id="progress-fill"></div>
+        <div class="map-container">
+            <div class="room" id="r-entrada" onclick="handleRoom('entrada')"></div>
+            <div class="room" id="r-noa" onclick="handleRoom('noa')"></div>
+            <div class="room" id="r-cocina" onclick="handleRoom('cocina')"></div>
+            <div class="room" id="r-lavabo" onclick="handleRoom('lavabo')"></div>
+            <div class="room" id="r-trastero" onclick="handleRoom('trastero')"></div>
+            <div class="room" id="r-comedor" onclick="handleRoom('comedor')"></div>
+            <div class="room" id="r-papas" onclick="handleRoom('papas')"></div>
+            <div class="room" id="r-habitacion" onclick="handleRoom('habitacion')"></div>
         </div>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <h2 id="m-title">BLOQUEADO</h2>
+        <div class="clue-box" id="m-clue">Debes completar los niveles anteriores.</div>
+        <div id="m-input-area">
+            <input type="text" id="pass-input" placeholder="Introduce el código secreto...">
+            <button class="btn-main" onclick="checkAttempt()">VERIFICAR</button>
+        </div>
+        <button onclick="closeModal()" style="background:none; border:none; color:#555; margin-top:15px; cursor:pointer;">Cancelar x</button>
+    </div>
+
     <script>
-        let currentStep = 0;
-
-        const missions = [
-            {
-                loc: "COCINA",
-                clue: "¡Nivel 1 completado! Ahora ve a la COCINA. El frío guarda un secreto dulce. El código es tu sabor de helado favorito.",
-                pass: "chocolate", // Cambia esto por lo que quieras
-                progress: "40%"
-            },
-            {
-                loc: "LAVABO",
-                clue: "Correcto. Dirígete al LAVABO. Donde los espejos no mienten pero esconden. Busca detrás del jabón. El código es el nombre de nuestra mascota.",
-                pass: "noa",
-                progress: "60%"
-            },
-            {
-                loc: "TRASTERO",
-                clue: "Se pone oscuro... Ve al TRASTERO. Usa la linterna. Busca en la caja más antigua. El código es el año en que nos conocimos.",
-                pass: "2022",
-                progress: "80%"
-            },
-            {
-                loc: "TU HABITACIÓN",
-                clue: "¡Misión Final! Ve a mi habitación. La recompensa te espera bajo la almohada. El código final es 'SIEMPRE'.",
-                pass: "siempre",
-                progress: "100%"
+        // CONFIGURACIÓN DEL JUEGO (Orden, pistas y claves)
+        const gameData = {
+            order: ['entrada', 'noa', 'cocina', 'lavabo', 'trastero', 'papas', 'comedor', 'habitacion'],
+            rooms: {
+                entrada: {
+                    title: "📍 El Comienzo",
+                    clue: "Bienvenida a tus 18. Tu primera prueba está donde entramos hoy. Mira bajo el felpudo del pasillo. El código es tu edad hoy.",
+                    pass: "18"
+                },
+                noa: {
+                    title: "📍 El Guardián",
+                    clue: "Noa sabe dónde está el siguiente paso. Busca en su cama o cerca de sus juguetes. El código es su nombre.",
+                    pass: "noa"
+                },
+                cocina: {
+                    title: "📍 Zona Gourmet",
+                    clue: "El frío es tu aliado. Dentro de la nevera hay algo dulce esperando. El código es nuestra fecha (DDMM).",
+                    pass: "1205"
+                },
+                lavabo: {
+                    title: "📍 Espejismos",
+                    clue: "Donde te pones guapa cada mañana. Mira detrás del espejo pequeño o bajo el jabón. El código es 'GUAPA'.",
+                    pass: "guapa"
+                },
+                trastero: {
+                    title: "📍 El Baúl",
+                    clue: "Zona oscura. Necesitarás linterna. Busca en la estantería del fondo. El código es 'AVENTURA'.",
+                    pass: "aventura"
+                },
+                papas: {
+                    title: "📍 Territorio Prohibido",
+                    clue: "Shhh... entra en el cuarto de los papas. En la mesita de noche hay una nota. El código es 'SECRET'.",
+                    pass: "secret"
+                },
+                comedor: {
+                    title: "📍 El Banquete",
+                    clue: "Donde celebramos todo. Mira debajo de la mesa grande, pegado a una pata. El código es 'FAMILIA'.",
+                    pass: "familia"
+                },
+                habitacion: {
+                    title: "📍 META FINAL",
+                    clue: "Has llegado. Mi habitación es el final del viaje. El último código está bajo mi almohada. Es lo que siento por ti.",
+                    pass: "teamo"
+                }
             }
-        ];
+        };
 
-        function checkPass() {
-            const input = document.getElementById('pass-input').value.toLowerCase().trim();
-            const feedback = document.getElementById('clue-text');
-            
-            // Primera validación (Entrada) - El código es 18
-            if (currentStep === 0 && input === "18") {
-                nextStep();
-            } 
-            // Resto de misiones
-            else if (currentStep > 0 && input === missions[currentStep-1].pass) {
-                nextStep();
+        let currentLevelIndex = 0;
+        let selectedRoom = "";
+
+        // Lógica de apertura de sala
+        function handleRoom(id) {
+            selectedRoom = id;
+            const targetIndex = gameData.order.indexOf(id);
+            const modal = document.getElementById('modal');
+            const overlay = document.getElementById('overlay');
+
+            modal.style.display = "block";
+            overlay.style.display = "block";
+
+            if (targetIndex === currentLevelIndex) {
+                // Es el nivel correcto
+                document.getElementById('m-title').innerText = gameData.rooms[id].title;
+                document.getElementById('m-clue').innerText = gameData.rooms[id].clue;
+                document.getElementById('m-input-area').style.display = "block";
+            } else if (targetIndex < currentLevelIndex) {
+                // Ya completado
+                document.getElementById('m-title').innerText = "✅ COMPLETADO";
+                document.getElementById('m-clue').innerText = "Ya has descifrado este secreto. Sigue adelante.";
+                document.getElementById('m-input-area').style.display = "none";
             } else {
-                alert("Código incorrecto. El sistema permanece bloqueado.");
+                // Bloqueado (fuera de orden)
+                document.getElementById('m-title').innerText = "🔒 BLOQUEADO";
+                document.getElementById('m-clue').innerText = "Aún no es el momento de entrar aquí. Sigue el orden de la misión.";
+                document.getElementById('m-input-area').style.display = "none";
             }
         }
 
-        function nextStep() {
-            if (currentStep < missions.length) {
-                const m = missions[currentStep];
-                document.getElementById('loc-name').innerText = "📍 " + m.loc;
-                document.getElementById('clue-text').innerText = m.clue;
-                document.getElementById('progress-fill').style.width = m.progress;
-                document.getElementById('pass-input').value = "";
-                currentStep++;
+        function checkAttempt() {
+            const val = document.getElementById('pass-input').value.toLowerCase().trim();
+            const correctPass = gameData.rooms[selectedRoom].pass.toLowerCase();
+
+            if (val === correctPass) {
+                success();
             } else {
-                document.getElementById('setup').innerHTML = "<h2>❤️ ¡FELIZ CUMPLEAÑOS! ❤️</h2><p>Has superado todas las pruebas. Te amo.</p>";
+                alert("CÓDIGO INCORRECTO. El sistema de seguridad ha bloqueado el acceso.");
             }
+        }
+
+        function success() {
+            const roomEl = document.getElementById('r-' + selectedRoom);
+            roomEl.classList.add('completed');
+            
+            log(`> Acceso concedido a ${selectedRoom.toUpperCase()}`);
+            currentLevelIndex++;
+            
+            const progress = (currentLevelIndex / gameData.order.length) * 100;
+            document.getElementById('fill').style.width = progress + "%";
+            
+            if (currentLevelIndex < gameData.order.length) {
+                const nextRoom = gameData.order[currentLevelIndex];
+                document.getElementById('status-text').innerText = "Siguiente: " + nextRoom.toUpperCase();
+            } else {
+                document.getElementById('status-text').innerText = "¡MISION COMPLETADA!";
+                confetti();
+            }
+            
+            closeModal();
+        }
+
+        function log(msg) {
+            const logBox = document.getElementById('log');
+            logBox.innerHTML += `<br>${msg}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = "none";
+            document.getElementById('overlay').style.display = "none";
+            document.getElementById('pass-input').value = "";
         }
     </script>
 </body>
