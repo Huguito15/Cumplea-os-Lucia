@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felices 18 - El Juego</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f0f4f8; text-align: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        input { padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 5px; margin: 10px 0; }
+        button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .hidden { display: none; }
+        h1 { color: #2f3542; }
+    </style>
+</head>
+<body>
+
+    <div id="juego" class="card">
+        <h1 id="titulo">🕵️‍♀️ Misión: Los 18</h1>
+        <p id="pista-texto">Bienvenida al juego. Tu primera parada es donde entraste hoy. Busca bajo el felpudo o cerca de la puerta.</p>
+        
+        <input type="text" id="codigoInput" placeholder="Introduce el código encontrado...">
+        <br>
+        <button onclick="verificarCodigo()">Desbloquear Siguiente Nivel</button>
+    </div>
+
+    <script>
+        let pasoActual = 0;
+        const niveles = [
+            { codigo: "18", pista: "¡Correcto! Ahora ve a la **Cocina**. Busca dentro de algo que enfría mucho. El código es tu color favorito." },
+            { codigo: "azul", pista: "¡Bien! Siguiente parada: **Lavabo**. Mira detrás del espejo. El código es el nombre de nuestra mascota." },
+            { codigo: "noa", pista: "Casi lo tienes. Ve al **Comedor**. Bajo la mesa hay un sobre. El código es el año en que nos conocimos." },
+            { codigo: "2022", pista: "¡FINAL! Ve a **Mi Habitación**. Tu regalo te espera allí. La contraseña es 'TEAMO'." },
+            { codigo: "TEAMO", pista: "💖 ¡FELICIDADES! ¡Espero que te haya gustado la sorpresa! 💖" }
+        ];
+
+        function verificarCodigo() {
+            let input = document.getElementById("codigoInput").value.toLowerCase().trim();
+            if (input === niveles[pasoActual].codigo.toLowerCase()) {
+                document.getElementById("pista-texto").innerHTML = niveles[pasoActual].pista;
+                document.getElementById("codigoInput").value = "";
+                pasoActual++;
+                if(pasoActual >= niveles.length) {
+                    document.querySelector("button").style.display = "none";
+                    document.getElementById("codigoInput").style.display = "none";
+                }
+            } else {
+                alert("Código incorrecto... ¡sigue buscando!");
+            }
+        }
+    </script>
+</body>
+</html>
