@@ -71,10 +71,12 @@
             position: relative;
             width: 600px;
             height: 600px;
-            background: url('https://i.ibb.co/LdYm0P7/imatge.png') center/contain no-repeat;
+            /* AQUÍ ESTÁ TU FOTO */
+            background: url('imatge.png') center/contain no-repeat;
             border: 3px solid #222;
             border-radius: 15px;
             box-shadow: 0 0 40px rgba(0,0,0,0.7), inset 0 0 20px rgba(212, 175, 55, 0.1);
+            background-color: #111; /* Fondo de respaldo por si la imagen tarda en cargar */
         }
 
         /* --- ZONAS INTERACTIVAS --- */
@@ -235,7 +237,6 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DEL JUEGO (Orden, pistas y claves)
         const gameData = {
             order: ['entrada', 'noa', 'cocina', 'lavabo', 'trastero', 'papas', 'comedor', 'habitacion'],
             rooms: {
@@ -285,7 +286,6 @@
         let currentLevelIndex = 0;
         let selectedRoom = "";
 
-        // Lógica de apertura de sala
         function handleRoom(id) {
             selectedRoom = id;
             const targetIndex = gameData.order.indexOf(id);
@@ -296,17 +296,14 @@
             overlay.style.display = "block";
 
             if (targetIndex === currentLevelIndex) {
-                // Es el nivel correcto
                 document.getElementById('m-title').innerText = gameData.rooms[id].title;
                 document.getElementById('m-clue').innerText = gameData.rooms[id].clue;
                 document.getElementById('m-input-area').style.display = "block";
             } else if (targetIndex < currentLevelIndex) {
-                // Ya completado
                 document.getElementById('m-title').innerText = "✅ COMPLETADO";
                 document.getElementById('m-clue').innerText = "Ya has descifrado este secreto. Sigue adelante.";
                 document.getElementById('m-input-area').style.display = "none";
             } else {
-                // Bloqueado (fuera de orden)
                 document.getElementById('m-title').innerText = "🔒 BLOQUEADO";
                 document.getElementById('m-clue').innerText = "Aún no es el momento de entrar aquí. Sigue el orden de la misión.";
                 document.getElementById('m-input-area').style.display = "none";
@@ -339,7 +336,7 @@
                 document.getElementById('status-text').innerText = "Siguiente: " + nextRoom.toUpperCase();
             } else {
                 document.getElementById('status-text').innerText = "¡MISION COMPLETADA!";
-                confetti();
+                alert("¡LO HAS LOGRADO! Feliz cumpleaños.");
             }
             
             closeModal();
