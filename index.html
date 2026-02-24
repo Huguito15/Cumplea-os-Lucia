@@ -3,49 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Felices 18 - El Juego</title>
+    <title>Misión 18: El Escape</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Raleway:wght@300;400&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Arial', sans-serif; background: #f0f4f8; text-align: center; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        input { padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 5px; margin: 10px 0; }
-        button { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .hidden { display: none; }
-        h1 { color: #2f3542; }
+        :root {
+            --gold: #d4af37;
+            --dark: #1a1a1a;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark);
+            background-image: radial-gradient(circle, #2c3e50 0%, #000000 100%);
+            color: white;
+            font-family: 'Raleway', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Contenedor Principal */
+        #game-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            letter-spacing: 3px;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* El plano visual */
+        .map-preview {
+            width: 100%;
+            height: 200px;
+            background: url('https://i.imgur.com/uR6vY7Y.png') center/contain no-repeat;
+            margin-bottom: 20px;
+            filter: sepia(0.5) brightness(0.8);
+            border: 1px solid var(--gold);
+        }
+
+        /* Tarjeta de acertijo */
+        .clue-card {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid var(--gold);
+            margin-top: 10px;
+            transition: all 0.5s ease;
+        }
+
+        .location-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: black;
+            padding: 2px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--gold);
+            color: white;
+            padding: 10px;
+            width: 80%;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 10px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: var(--gold);
+            color: black;
+            box-shadow: 0 0 15px var(--gold);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #333;
+            margin-top: 30px;
+            border-radius: 5px;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: var(--gold);
+            width: 20%;
+            transition: 0.5s;
+        }
     </style>
 </head>
 <body>
 
-    <div id="juego" class="card">
-        <h1 id="titulo">🕵️‍♀️ Misión: Los 18</h1>
-        <p id="pista-texto">Bienvenida al juego. Tu primera parada es donde entraste hoy. Busca bajo el felpudo o cerca de la puerta.</p>
+    <div id="game-container">
+        <h1>MISIÓN: 18 AÑOS</h1>
         
-        <input type="text" id="codigoInput" placeholder="Introduce el código encontrado...">
-        <br>
-        <button onclick="verificarCodigo()">Desbloquear Siguiente Nivel</button>
+        <div class="map-preview"></div>
+
+        <div id="setup">
+            <div class="location-badge" id="loc-name">📍 ENTRADA</div>
+            <div class="clue-card">
+                <p id="clue-text">"Bienvenida, agente especial. Tu aventura comienza donde termina la calle. Busca el código bajo el objeto que pisa todo el mundo."</p>
+            </div>
+
+            <input type="text" id="pass-input" placeholder="Escribe el código secreto...">
+            <br>
+            <button onclick="checkPass()">DESCIFRAR</button>
+        </div>
+
+        <div class="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
     </div>
 
     <script>
-        let pasoActual = 0;
-        const niveles = [
-            { codigo: "18", pista: "¡Correcto! Ahora ve a la **Cocina**. Busca dentro de algo que enfría mucho. El código es tu color favorito." },
-            { codigo: "azul", pista: "¡Bien! Siguiente parada: **Lavabo**. Mira detrás del espejo. El código es el nombre de nuestra mascota." },
-            { codigo: "noa", pista: "Casi lo tienes. Ve al **Comedor**. Bajo la mesa hay un sobre. El código es el año en que nos conocimos." },
-            { codigo: "2022", pista: "¡FINAL! Ve a **Mi Habitación**. Tu regalo te espera allí. La contraseña es 'TEAMO'." },
-            { codigo: "TEAMO", pista: "💖 ¡FELICIDADES! ¡Espero que te haya gustado la sorpresa! 💖" }
+        let currentStep = 0;
+
+        const missions = [
+            {
+                loc: "COCINA",
+                clue: "¡Nivel 1 completado! Ahora ve a la COCINA. El frío guarda un secreto dulce. El código es tu sabor de helado favorito.",
+                pass: "chocolate", // Cambia esto por lo que quieras
+                progress: "40%"
+            },
+            {
+                loc: "LAVABO",
+                clue: "Correcto. Dirígete al LAVABO. Donde los espejos no mienten pero esconden. Busca detrás del jabón. El código es el nombre de nuestra mascota.",
+                pass: "noa",
+                progress: "60%"
+            },
+            {
+                loc: "TRASTERO",
+                clue: "Se pone oscuro... Ve al TRASTERO. Usa la linterna. Busca en la caja más antigua. El código es el año en que nos conocimos.",
+                pass: "2022",
+                progress: "80%"
+            },
+            {
+                loc: "TU HABITACIÓN",
+                clue: "¡Misión Final! Ve a mi habitación. La recompensa te espera bajo la almohada. El código final es 'SIEMPRE'.",
+                pass: "siempre",
+                progress: "100%"
+            }
         ];
 
-        function verificarCodigo() {
-            let input = document.getElementById("codigoInput").value.toLowerCase().trim();
-            if (input === niveles[pasoActual].codigo.toLowerCase()) {
-                document.getElementById("pista-texto").innerHTML = niveles[pasoActual].pista;
-                document.getElementById("codigoInput").value = "";
-                pasoActual++;
-                if(pasoActual >= niveles.length) {
-                    document.querySelector("button").style.display = "none";
-                    document.getElementById("codigoInput").style.display = "none";
-                }
+        function checkPass() {
+            const input = document.getElementById('pass-input').value.toLowerCase().trim();
+            const feedback = document.getElementById('clue-text');
+            
+            // Primera validación (Entrada) - El código es 18
+            if (currentStep === 0 && input === "18") {
+                nextStep();
+            } 
+            // Resto de misiones
+            else if (currentStep > 0 && input === missions[currentStep-1].pass) {
+                nextStep();
             } else {
-                alert("Código incorrecto... ¡sigue buscando!");
+                alert("Código incorrecto. El sistema permanece bloqueado.");
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < missions.length) {
+                const m = missions[currentStep];
+                document.getElementById('loc-name').innerText = "📍 " + m.loc;
+                document.getElementById('clue-text').innerText = m.clue;
+                document.getElementById('progress-fill').style.width = m.progress;
+                document.getElementById('pass-input').value = "";
+                currentStep++;
+            } else {
+                document.getElementById('setup').innerHTML = "<h2>❤️ ¡FELIZ CUMPLEAÑOS! ❤️</h2><p>Has superado todas las pruebas. Te amo.</p>";
             }
         }
     </script>
